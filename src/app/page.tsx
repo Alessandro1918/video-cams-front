@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react"
 
+//Homepage - ask user to enter a room or create a new one.
 export default function Home() {
 
   const [ roomId, setRoomId ] = useState('')
