@@ -1,13 +1,27 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { usePathname } from "next/navigation"
 
+import { socket } from '../../socket'
+
+//Room page - ask user if device is a camera or a player
 export default function Room() {
 
   const pathname = usePathname()
   const roomId = pathname.split("/")[2]     // get roomId from url: "/room/42"
 
   const [ players, setPlayers ] = useState<string[]>([])
+
+  useEffect(() => {
+
+    socket.connect()
+    socket.on("connect", () => {
+      console.log(socket.id)
+      // setMyUserId(socket.id)
+      // socket.emit("join-room", router.query.roomId)
+    })
+
+  }, [])
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
