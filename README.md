@@ -1,4 +1,4 @@
-# vide-cams-front
+# video-cams-front
 
 ## 🚀 Projeto
 
