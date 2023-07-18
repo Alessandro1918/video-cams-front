@@ -10,17 +10,38 @@ export default function Room() {
   const pathname = usePathname()
   const roomId = pathname.split("/")[2]     // get roomId from url: "/room/42"
 
-  const [ players, setPlayers ] = useState<string[]>([])
+  const [ users, setUsers ] = useState<string[]>([])    //not counting the current user
+
+  socket.on("new-user-joined-room", userId =>  {
+    console.log(`User ${userId} entered the room`)
+    setUsers([...users, userId])
+  })
+
+  socket.on("list-room-users", roomUsers =>  {
+    console.log(`Users already in the room: ${roomUsers}`)
+    setUsers(roomUsers)
+  })
+
+  socket.on("left-room", userId => {
+    console.log(`User ${userId} left the room`)
+    setUsers(users.filter(id => id !== userId))
+  })
 
   useEffect(() => {
 
     socket.connect()
     socket.on("connect", () => {
-      console.log(socket.id)
-      // setMyUserId(socket.id)
-      // socket.emit("join-room", router.query.roomId)
+      console.log(`My ID: ${socket.id}`)
+      socket.emit("join-room", roomId)
     })
 
+    return () => {
+      //Clean up:
+      socket.off("new-user-joined-room")
+      socket.off("list-room-users")
+      socket.off("left-room")
+      socket.disconnect()
+    }
   }, [])
 
   return (
@@ -28,7 +49,7 @@ export default function Room() {
 
       <h1>{`Room: ${roomId}`}</h1>
       
-      <h1>{`Players in the room: ${players.length}`}</h1>
+      <h1>{`Users in the room: ${users.length + 1}`}</h1>
 
       <a 
         className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
